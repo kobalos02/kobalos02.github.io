@@ -1,0 +1,100 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>Codelabs Firebase + Vue Demo</title>
+  <!-- Vue -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <!-- Firebase -->
+  <script src="https://gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+  <!-- VueFire -->
+  <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>	
+</head>	
+<body>
+
+	<!-- START application entry point -->
+	<div id="app">
+		<!-- title -->
+		<h1>{{title}}</h1>
+		
+		<!-- input area -->
+		<input v-model="mensahe" />
+
+		<!-- button -->
+		<button @click="send(mensahe)">SEND</button>
+		
+		<!-- list -->
+		<ul>
+			<li  v-for="msg in messages">{{msg.data}}</li>
+		</ul>
+	</div>
+	<!-- END UI Element UI -->
+
+</body>
+
+	<!-- script -->
+	<script type="text/javascript">
+		// Initialize Firebase:
+		// -- create a firebase projetc using your google account
+		// -- url: https://console.firebase.google.com/
+		// Copy config keys from
+		// -- your project
+		// -- "Add Firebase to your web app"
+		// Set-up firebase database to no authentication
+		// -- Project -> Database -> RULES
+		/*
+			{
+			  "rules": {
+			    ".read": "auth != null",
+			    ".write": "auth != null",
+			    "messages": {	// new entry connected to UI
+			      ".read": true,
+			      ".write": true,      
+			    }  
+			  }
+			}		
+		*/ 
+		var config = {
+			apiKey: "AIzaSyCCerPhszf5NsokYj7uWxs4IOpMB61BzFE",
+		    authDomain: "ioextended2017-b3670.firebaseapp.com",
+		    databaseURL: "https://ioextended2017-b3670.firebaseio.com",
+		    projectId: "ioextended2017-b3670",
+		    storageBucket: "ioextended2017-b3670.appspot.com",
+		    messagingSenderId: "452061304816"
+	  	};
+
+	  	// refer to firebase intiializer from vueJS usage
+		var firebaseApp = firebase.initializeApp(config);
+		var db = firebaseApp.database();	  
+
+		var vm = new Vue({
+
+		  // the html element UI id	
+		  el: '#app',		
+
+		  firebase: {
+		  	messages: db.ref('messages'),
+		  },
+
+		  // data binding to Vue from UI (with curly braces node parent)
+		  data: {			
+		  	title: 'UPLB',
+		  	mensahe: ''
+		  },
+
+		  // methods to implement on UI
+		  methods: {		
+		  	send(dt){
+		  		let msg = {
+		  			data: dt,
+		  			user: 'Angel'
+		  		}
+
+		  		// push UI data to firebase backend
+		  		this.$firebaseRefs.messages.push(msg)
+		  		this.mensahe = ''
+		  	}
+		  }
+		})
+	</script>
+
+</html>
