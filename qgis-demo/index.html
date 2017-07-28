@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css" />
+        <link rel="stylesheet" type="text/css" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/MarkerCluster.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+        <link rel="stylesheet" href="css/leaflet-search.css" />
+        <link rel="stylesheet" href="css/leaflet.draw.css" />
+        <link rel="stylesheet" href="css/leaflet.measurecontrol.css" />
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet-heat.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/OSMBuildings-Leaflet.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/leaflet-tilelayer-wmts.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/leaflet.draw.js"></script>
+        <script src="js/leaflet.measurecontrol.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/AMIAwebmap0.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        var map = L.map('map', {
+            measureControl:true,
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[6.13005457534,113.819239973],[18.1914618076,132.060520169]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.addAttribution('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a>');
+        var bounds_group = new L.featureGroup([]);
+        var basemap0 = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+            maxZoom: 28
+        });
+        basemap0.addTo(map);
+        var basemap1 = L.tileLayer('http://{s}.tile.openweathermap.org/map/precipitation/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+            maxZoom: 28
+        });
+        basemap1.addTo(map);
+        var basemap2 = L.tileLayer('http://{s}.tile.openweathermap.org/map/rain/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+            maxZoom: 28
+        });
+        basemap2.addTo(map);
+        var basemap3 = L.tileLayer('http://{s}.tile.openweathermap.org/map/wind/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+            maxZoom: 28
+        });
+        basemap3.addTo(map);
+        function setBounds() {
+        }
+        function geoJson2heat(geojson, weight) {
+          return geojson.features.map(function(feature) {
+            return [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.properties[weight]
+            ];
+          });
+        }
+        function pop_AMIAwebmap0(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PROV_NAME'] !== null ? Autolinker.link(String(feature.properties['PROV_NAME'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MUNI_CITY'] !== null ? Autolinker.link(String(feature.properties['MUNI_CITY'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VA_Class</th>\
+                        <td>' + (feature.properties['VA_Class'] !== null ? Autolinker.link(String(feature.properties['VA_Class'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ID_ClassVA'] !== null ? Autolinker.link(String(feature.properties['ID_ClassVA'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function style_AMIAwebmap0(feature) {
+            if (feature.properties['ID_ClassVA'] >= 1.000000 && feature.properties['ID_ClassVA'] <= 1.800000 ) {
+                return {
+                pane: 'pane_AMIAwebmap0',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(255,245,240,1.0)',
+            }
+            }
+            if (feature.properties['ID_ClassVA'] >= 1.800000 && feature.properties['ID_ClassVA'] <= 2.600000 ) {
+                return {
+                pane: 'pane_AMIAwebmap0',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(252,189,164,1.0)',
+            }
+            }
+            if (feature.properties['ID_ClassVA'] >= 2.600000 && feature.properties['ID_ClassVA'] <= 3.400000 ) {
+                return {
+                pane: 'pane_AMIAwebmap0',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(251,112,80,1.0)',
+            }
+            }
+            if (feature.properties['ID_ClassVA'] >= 3.400000 && feature.properties['ID_ClassVA'] <= 4.200000 ) {
+                return {
+                pane: 'pane_AMIAwebmap0',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(211,32,32,1.0)',
+            }
+            }
+            if (feature.properties['ID_ClassVA'] >= 4.200000 && feature.properties['ID_ClassVA'] <= 5.000000 ) {
+                return {
+                pane: 'pane_AMIAwebmap0',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(103,0,13,1.0)',
+            }
+            }
+        }
+        map.createPane('pane_AMIAwebmap0');
+        map.getPane('pane_AMIAwebmap0').style.zIndex = 600;
+        map.getPane('pane_AMIAwebmap0').style['mix-blend-mode'] = 'normal';
+    var layer_AMIAwebmap0 = new L.geoJson(json_AMIAwebmap0, {
+        attribution: '<a href=""></a>',
+        pane: 'pane_AMIAwebmap0',
+        onEachFeature: pop_AMIAwebmap0,
+        style: style_AMIAwebmap0
+    });
+        bounds_group.addLayer(layer_AMIAwebmap0);
+        map.addLayer(layer_AMIAwebmap0);
+        var baseMaps = {'OSM': basemap0, 'OpenWeatherMap Precipitation': basemap1, 'OpenWeatherMap Rain': basemap2, 'OpenWeatherMap Wind': basemap3};
+        L.control.layers(baseMaps,{'AMIA_webmap<br /><table><tr><td style="text-align: center;"><img src="legend/AMIAwebmap0_10000180000.png" /></td><td> 1.0000 - 1.8000 </td></tr><tr><td style="text-align: center;"><img src="legend/AMIAwebmap0_18000260001.png" /></td><td> 1.8000 - 2.6000 </td></tr><tr><td style="text-align: center;"><img src="legend/AMIAwebmap0_26000340002.png" /></td><td> 2.6000 - 3.4000 </td></tr><tr><td style="text-align: center;"><img src="legend/AMIAwebmap0_34000420003.png" /></td><td> 3.4000 - 4.2000 </td></tr><tr><td style="text-align: center;"><img src="legend/AMIAwebmap0_42000500004.png" /></td><td> 4.2000 - 5.0000 </td></tr></table>': layer_AMIAwebmap0,}).addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_AMIA_webmap0,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'PROV_NAME'}));
+        </script>
+    </body>
+</html>
